@@ -7,9 +7,6 @@ class RequestHandler:
         try:
             # Преобразование метода в верхний регистр для корректности
             method = method.upper()
-            print(f"Request URL: {url}")
-            print(f"Request headers: {headers}")
-            print(f"Request params: {params}")
             # GET-запросы используют параметры, остальные — тело запроса
             if method == "GET":
                 response = requests.get(url, headers=headers, params=params, timeout=30)
