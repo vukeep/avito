@@ -1,7 +1,7 @@
 # /autoload/autoload_client.py
 
-from utils.request_handler import RequestHandler
-from config.settings import API_BASE_URL
+from ..utils.request_handler import RequestHandler
+from ..config.settings import API_BASE_URL
 
 class AutoloadClient:
     def __init__(self, auth):
