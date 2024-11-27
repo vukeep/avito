@@ -97,3 +97,8 @@ class MobicomAPI:
         except Exception as e:
             return {"error": str(e)}
 
+if __name__ == '__main__':
+    mobicom = MobicomAPI()
+    res = mobicom.get_product_by_article('MME73RU-A')
+    print(res)
+
