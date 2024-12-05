@@ -6,9 +6,9 @@ from .user.user_client import UserClient
 from .default.default_client import DefaultClient
 
 class AvitoAPIClient:
-    def __init__(self):
+    def __init__(self, client_id, client_secret):
         # Инициализируем аутентификацию
-        self.auth = Authentication()
+        self.auth = Authentication(client_id, client_secret)
         # Инициализируем клиенты для каждого блока методов
         self.autoload = AutoloadClient(self.auth)
         self.item = ItemClient(self.auth)

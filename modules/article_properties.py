@@ -99,6 +99,6 @@ class MobicomAPI:
 
 if __name__ == '__main__':
     mobicom = MobicomAPI()
-    res = mobicom.get_product_by_article('MME73RU-A')
+    res = mobicom.get_product_by_article('MLP53RU-A')
     print(res)
 

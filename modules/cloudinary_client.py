@@ -24,6 +24,14 @@ def get_photo_urls(folder):
     except Exception as e:
         print(f"Ошибка при получении фото из папки {folder}: {e}")
         return []
+    
+def url_to_string(folder):
+    photo_urls = get_photo_urls(folder)[:10] # Получаем список URL фотографий и ограничиваем первыми 10 значениями
+    if photo_urls:
+        return ' | '.join(photo_urls) # Преобразуем список URL в строку
+    else:
+        return ''
+
 
 if __name__ == "__main__":
     folder = "210839759"

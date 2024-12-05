@@ -7,35 +7,75 @@ class AutoloadClient:
     def __init__(self, auth):
         self.auth = auth
 
+    def get_all_items(self, per_page=100, page=1, status='active'):
+        """
+        Возвращает список объявлений авторизованного пользователя - статус, категорию и ссылку на сайте
+        """
+        url = f"{API_BASE_URL}/core/v1/items"
+        headers = self.auth.get_headers()
+        page = 0
+        total_list = []
+        while True:
+            params = {
+                "per_page": per_page,
+                "page": page,
+                "status": status
+            }
+            response = RequestHandler.send_request(url, method="GET", headers=headers, params=params)
+            
+            if response['resources'] == []:
+                break
+            page += 1
+            total_list += response['resources']
+        return total_list
+
     # def для autoload/v2/reports/{report_id}/items GET
     def get_report_items(self, report_id, per_page=50, page=0, query=None, sections=None):
+         
         """
-        Получение списка объявлений по идентификатору отчёта (report_id).
+        Получение всех total из всех страниц по идентификатору отчёта (report_id).
 
         :param report_id: ID отчёта
         :param per_page: Количество объявлений на странице (по умолчанию 50)
-        :param page: Номер страницы (по умолчанию 0)
         :param query: Фильтр по ID объявления
         :param sections: Фильтр по разделам
-        :return: Список объявлений или None в случае ошибки
+        :return: Список словарей с total из всех страниц или None в случае ошибки
         """
         url = f"{API_BASE_URL}/autoload/v2/reports/{report_id}/items"
+        page = 0
+        total_list = []
 
-        # Параметры запроса
-        params = {
-            "per_page": per_page,
-            "page": page,
-            "query": query,
-            "sections": sections
-        }
+        while True:
+            # Параметры запроса
+            params = {
+                "per_page": per_page,
+                "page": page,
+                "query": query,
+                "sections": sections
+            }
 
-        # Очищаем параметры с None значениями
-        params = {k: v for k, v in params.items() if v is not None}
+            # Очищаем параметры с None значениями
+            params = {k: v for k, v in params.items() if v is not None}
 
-        # Выполнение запроса
-        headers = self.auth.get_headers()
-        return RequestHandler.send_request(url, method="GET", headers=headers, params=params)
+            # Выполнение запроса
+            headers = self.auth.get_headers()
+            response = RequestHandler.send_request(url, method="GET", headers=headers, params=params)
 
+            # Проверяем, что ответ не None и содержит ключ 'meta'
+            if response and 'meta' in response:
+                # Извлекаем значение 'total' из 'meta'
+                total = response['items']
+                # Добавляем total в список
+                total_list = total_list + total
+                # Проверяем, достигли ли мы последней страницы
+                if page >= response['meta']['pages'] - 1:
+                    break
+                page += 1
+            else:
+                break
+
+        return total_list
+    
     # def для autoload/v1/profile GET
     def get_profile(self):
         """
@@ -45,6 +85,20 @@ class AutoloadClient:
         url = f"{API_BASE_URL}/autoload/v1/profile"
         headers = self.auth.get_headers()
         return RequestHandler.send_request(url, method="GET", headers=headers)
+    
+    # def для /autoload/v2/reports/items
+    def get_report_items_idMobicom(self, query):
+        """
+        Получение данных по конкретным объявлениям.
+        :param query : Идентификаторы объявлений из файла (параметр Id). Формат значения: строка, содержащая от 1 до 100 идентификаторов, перечисленных через «,» или «|».
+        :return: Список словарей с items из всех avito ids или None в случае ошибки
+        """
+        params = {
+                "query": query,
+            }
+        url = f"{API_BASE_URL}/autoload/v2/reports/items"
+        headers = self.auth.get_headers()
+        return RequestHandler.send_request(url, method="GET", headers=headers, params=params)
 
     # def для autoload/v1/profile POST
     def create_or_update_profile(self, profile_data):
@@ -108,28 +162,6 @@ class AutoloadClient:
             "page": page,
             "date_from": date_from,
             "date_to": date_to,
-        }
-        params = {k: v for k, v in params.items() if v is not None}
-        return RequestHandler.send_request(url, method="GET", headers=headers, params=params)
-
-    # def для autoload/v2/reports/items GET
-    def get_report_items(self, report_id, per_page=50, page=0, query=None, sections=None):
-        """
-        Получение списка объявлений по идентификатору отчёта.
-        :param report_id: ID отчёта
-        :param per_page: Количество объявлений на странице
-        :param page: Номер страницы
-        :param query: Фильтр по ID объявления
-        :param sections: Фильтр по разделам
-        :return: Список объявлений или None в случае ошибки
-        """
-        url = f"{API_BASE_URL}/autoload/v2/reports/{report_id}/items"
-        headers = self.auth.get_headers()
-        params = {
-            "per_page": per_page,
-            "page": page,
-            "query": query,
-            "sections": sections,
         }
         params = {k: v for k, v in params.items() if v is not None}
         return RequestHandler.send_request(url, method="GET", headers=headers, params=params)

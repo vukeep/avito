@@ -7,6 +7,14 @@ from modules.article_properties import MobicomAPI
 import requests
 import pandas as pd
 
+import os
+import dotenv
+
+dotenv.load_dotenv()
+
+client_id = os.getenv("Client_id_iSmartChita")
+client_secret = os.getenv("Client_secret_iSmartChita")
+
 def save_report_to_excel(client, report_id):
     """
     Сохраняет все позиции отчета в Excel файл
@@ -57,7 +65,7 @@ def save_report_to_excel(client, report_id):
 
 # Пример использования:
 if __name__ == "__main__":
-    client = AvitoAPIClient()
+    client = AvitoAPIClient(client_id, client_secret)
     report_id = 296747312
     saved_file = save_report_to_excel(client, report_id)
     #user_info = client.user.get_user_info()

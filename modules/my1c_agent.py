@@ -16,7 +16,7 @@ password_1c = os.getenv('password_1c')
 url_1c = os.getenv('url_1c')
 
 class Data_1c:
-    def __init__(self, username: str, password: str, url: str):
+    def __init__(self, username=username_1c, password=password_1c, url=url_1c):
         try:
             session = Session()
             session.auth = HTTPBasicAuth(username.encode('utf-8'), password)
@@ -26,7 +26,7 @@ class Data_1c:
 
     def stock(self, id_warehouse: str) -> List[Dict[str, Any]]:
         try:
-            result = self.client.service.getPricesAndRests(id_warehouse)
+            result = self.client.service.getPricesAndRests(GUID_Store=id_warehouse, AllGoods=True, SN_Level=True)
             return json.loads(result)
         except Fault as e:
             raise ValueError(f"Ошибка запроса SOAP: {e}")
@@ -55,7 +55,7 @@ class Data_1c:
 
 
 
-    def shops(self) -> List[Dict[str, Any]]:
+    def stores(self) -> List[Dict[str, Any]]:
         try:
             result = self.client.service.getStoresList()
             return json.loads(result)
@@ -76,21 +76,30 @@ def dict_shops(data: List[Dict[str, Any]], res_dict: Dict[str, str] = None) -> D
 
 
 if __name__ == '__main__':
-    data = Data_1c(username_1c, password_1c, url_1c)
+    data = Data_1c()
     #store_id = ['MME73RU-A']
     '''
-    store_id = ["38661463-a478-11ea-8a9e-005056010801"] #,"38661463-a478-11ea-8a9e-005056010801","38661463-a478-11ea-8a9e-005056010801"]
-    stocks = data.stock_store(store_id)
-    for stock in stocks[0].get('Остатки'):
-        print(stock)
+    store_id = ["50009591-0156-6928-11ef-6f37e838708e","50009591-0156-6928-11ef-6f37e838708f","50009591-0156-6928-11ef-6f37e8387091"]
+    stocks = data.goods_stock(store_id)
+    if stocks:
+        for stock in stocks[0].get('Остатки'):
+            print(stock)
+    else:
+        print('Пустой ответ от сервера 1С.')    
 
     shops = data.shops()
     for shop in shops[0]['Подчиненные']:
         for sub_shop in shop['Подчиненные']:
             print(sub_shop['Наименование'], sub_shop['Ссылка'])
-    '''
+     '''   
 
-    store_id = '415894a0-952e-11e8-b502-005056010801'
-    goods_stock = data.stock(store_id)
+    store_id = ['ae992eb3-ca2d-11ea-9a1e-005056010801', '51a0ef02-b986-11ee-9190-005056012869']
+    goods_stock = data.stock(store_id[1])
     for goods in goods_stock:
-        print(goods.get('НоменклатураНаименование'), goods.get('НоменклатураКод'), goods.get('КоличествоОстаток'), goods.get('Цена'))
+        if goods.get('НоменклатураКод') == 'ЦО-51949 ':
+            print(goods)
+
+
+    
+
+
