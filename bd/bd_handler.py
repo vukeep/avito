@@ -121,7 +121,7 @@ class DatabaseHandler:
         except sqlite3.Error as e:
             print(f"Ошибка при обновлении данных: {e}")
 
-    def get_id_mobicom(self, store):
+    def get_id_mobicom(self, store): 
         # Функция возвращает список id из таблицы stores, где поле AvitoId равно Null
         try:
             with sqlite3.connect(self.db_path) as conn:
@@ -142,6 +142,16 @@ class DatabaseHandler:
 
         except sqlite3.Error as e:
             print(f"Ошибка при обновлении цены: {e}")
+
+    def get_avito_id_by_article(self, store: str) -> list:
+        # функция возвращает список avito_id и id из таблицы stores, где поле store равно переданному параметру
+        try:
+            with sqlite3.connect(self.db_path) as conn:
+                cursor = conn.cursor()
+                cursor.execute('''SELECT AvitoId, Id FROM stores WHERE store = ?''', (store,))
+                return cursor.fetchall()
+        except sqlite3.Error as e:
+            print(f"Ошибка при получении avito_id: {e}")
 
 # Пример использования
 if __name__ == "__main__":

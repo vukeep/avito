@@ -2,14 +2,16 @@ from modules.dataForProcessing import update_mobicom_data
 from info.accountData import accounts, stores
 from avito_api import AvitoAPIClient
 from datetime import datetime, timedelta
-from bd.bd_handler import DatabaseHandler
+from bd import DatabaseHandler
 from modules.dataForProcessing import stock_stores
-from modules.cloudinary_client import url_to_string
-from modules import price_stores
+from modules import CloudinaryClient
+from modules import price_stores, update_price_avito
 
 # Вычисляем текущую дату в формате гггг-мм-ддTчч:мм:сс
 current_date = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
 db_handler = DatabaseHandler()
+cloudinary_client = CloudinaryClient()
+
 
 def id_last_successful_download(data: dict):
     '''
@@ -71,7 +73,7 @@ def update_mobicom_data_db(account: dict):
         record_dict = [{'Id': item.get('ad_id'), 'AvitoId': item.get('avito_id')} for item in report_items.get('items')] # преобразуем данные в словарь
         db_handler.update_avito_id(record_dict, store) # обновляем avito id в базе
 
-def update_db(account: dict):
+def creation_exchange_file(account: dict):
     '''
     Обновляем базу данных, добавляя новые записи о товарах
     '''
@@ -92,7 +94,7 @@ def update_db(account: dict):
 
     # убираем все строки None
     avito_data = [item for item in avito_data if item is not None]
-    
+
     # Обновляем данные в базе
     for item in avito_data:
         try:
@@ -100,7 +102,10 @@ def update_db(account: dict):
         except:
             print(f'{item} - не понятно что это')
             continue
-        url = url_to_string(article)
+        url = cloudinary_client.url_to_string(article)
+        if "http://res.cloudinary.com/avitophoto/image" not in url: # проверяем есть ли в строке текст http://res.cloudinary.com/avitophoto/image
+            print(f'{item} - нет изображения')
+            continue
         item['ImageUrls'] = url
         item['store'] = account_key
         data_details = account[account_key]['data_details']
@@ -122,6 +127,7 @@ def update_price_mobicom(account: dict):
     store = list(account.keys())[0] # Получаем название магазина
     name_store = account[store]['stores']
     store_code = []
+    price_list = []
     for name in name_store:
         store_code.append(stores[name]['Ссылка'])
     # Получаем DataFrame с ценами для магазинов
@@ -134,17 +140,36 @@ def update_price_mobicom(account: dict):
         
         # Обновляем цену в базе данных для данного id
         db_handler.update_price(article_id, new_price, store)
+        price_list.append((article_id, new_price))
+    return price_list
+
+
+
+def update_price_avito_store(account: dict):
+    '''
+    Обновляем цены на avito
+    '''
+    price_list = update_price_mobicom(account)
+    update_price_avito(price_list, account) 
 
         
 
 
 if __name__ == "__main__":
-    for account in accounts:
-        update_db(account)
+    # for account in accounts:
+    #     update_db(account)
         #update_price_mobicom(account)
     # stores = ['ae992eb3-ca2d-11ea-9a1e-005056010801', '51a0ef02-b986-11ee-9190-005056012869']
     # df = price_stores(stores)
     # # Открываем файл в бинарном режиме 'wb'
     # with open('price.xlsx', 'wb') as f:
     #     df.to_excel(f, index=False)
+
+    for account in accounts:
+        
+        # Создаем пример DataFrame со столбцами 'Артикул' и 'Цена'
+        # data = [('RLM-3871.8-256.GN', 2399), ('C789', 300)]
+        # update_price_avito(data, account) 
+        update_price_avito_store(account)
+
 

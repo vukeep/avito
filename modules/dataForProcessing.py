@@ -171,6 +171,7 @@ def smart_watch_function(item: dict) -> dict:
             'ProductSubType': 'Смарт-часы',
             'Gender': 'Унисекс',
             'StrapType': 'Силикон',
+            'Brand': brand,
         }
         return final_dict
 
@@ -285,8 +286,8 @@ def update_mobicom_data(df: pd.DataFrame):
     :param df: DataFrame, содержащий данные о товарах.
     :return: Обновленные данные Avito.
     """
-    list_data = product_list(df)
-    avito_data = update_avito_models(list_data)
+    list_data = product_list(df) # получение списка словарей с данными о товарах
+    avito_data = update_avito_models(list_data) # обновление данных словаря по атрибутам таблицы avito_models
     return avito_data
 
 if __name__ == '__main__':

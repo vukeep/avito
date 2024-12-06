@@ -11,16 +11,15 @@ import dotenv
 
 dotenv.load_dotenv()
 
-username_1c = os.getenv('username_1c')
-password_1c = os.getenv('password_1c')
-url_1c = os.getenv('url_1c')
-
 class Data_1c:
-    def __init__(self, username=username_1c, password=password_1c, url=url_1c):
+    def __init__(self):
+        self.username = os.getenv('username_1c')
+        self.password = os.getenv('password_1c')
+        self.url = os.getenv('url_1c')
         try:
             session = Session()
-            session.auth = HTTPBasicAuth(username.encode('utf-8'), password)
-            self.client = Client(url, transport=Transport(session=session))
+            session.auth = HTTPBasicAuth(self.username.encode('utf-8'), self.password)
+            self.client = Client(self.url, transport=Transport(session=session))
         except Exception as e:
             raise RuntimeError(f"Ошибка инициализации клиента SOAP: {e}")
 
