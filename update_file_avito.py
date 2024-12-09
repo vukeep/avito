@@ -156,20 +156,10 @@ def update_price_avito_store(account: dict):
 
 
 if __name__ == "__main__":
-    # for account in accounts:
-    #     update_db(account)
-        #update_price_mobicom(account)
-    # stores = ['ae992eb3-ca2d-11ea-9a1e-005056010801', '51a0ef02-b986-11ee-9190-005056012869']
-    # df = price_stores(stores)
-    # # Открываем файл в бинарном режиме 'wb'
-    # with open('price.xlsx', 'wb') as f:
-    #     df.to_excel(f, index=False)
 
     for account in accounts:
         
-        # Создаем пример DataFrame со столбцами 'Артикул' и 'Цена'
-        # data = [('RLM-3871.8-256.GN', 2399), ('C789', 300)]
-        # update_price_avito(data, account) 
-        update_price_avito_store(account)
+        creation_exchange_file(account) 
+        # update_price_avito_store(account)
 
 
