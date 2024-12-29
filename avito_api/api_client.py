@@ -3,7 +3,8 @@ from .auth.authentication import Authentication
 from .autoload.autoload_client import AutoloadClient
 from .item.item_client import ItemClient
 from .user.user_client import UserClient
-from .default.default_client import DefaultClient
+from .services_item.services_client import ServicesClient
+from .messenger.messenger_client import MessengerClient
 
 class AvitoAPIClient:
     def __init__(self, client_id, client_secret):
@@ -13,4 +14,5 @@ class AvitoAPIClient:
         self.autoload = AutoloadClient(self.auth)
         self.item = ItemClient(self.auth)
         self.user = UserClient(self.auth)
-        self.default = DefaultClient(self.auth)
+        self.services = ServicesClient(self.auth)
+        self.messenger = MessengerClient(self.auth)

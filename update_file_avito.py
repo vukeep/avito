@@ -118,7 +118,7 @@ def creation_exchange_file(account: dict):
     new_records_df = db_handler.get_records_by_store(account_key) # Получаем обновленный список карточек для магазина
     # фильтруем карточки по столбцу 'Артикул', оставляя только те, которые есть в остатках
     filtered_records_df = new_records_df[new_records_df['Id'].isin(stock['Артикул'])]
-    filtered_records_df.to_csv(f'{account_key}.csv', index=False, encoding='utf-8')
+    filtered_records_df.to_excel(f'{account_key}.xlsx', index=False)
 
 def update_price_mobicom(account: dict):
     '''

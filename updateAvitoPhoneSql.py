@@ -3,20 +3,25 @@
 # вставляет данные в таблицу avito_phones
 
 import os
-import dotenv
-
 import xml.etree.ElementTree as ET
-import pyodbc
+import requests
+import sqlite3
+from db.db_handler import DatabaseHandler
 
-dotenv.load_dotenv()
+def save_xml_to_file(url, output_file):
+    # Загружаем XML-данные
+    response = requests.get(url)
+    if response.status_code != 200:
+        raise Exception(f"Ошибка загрузки данных: {response.status_code}")
+    
+    # Сохраняем содержимое в файл
+    with open(output_file, "wb") as f:
+        f.write(response.content)
+    print(f"Данные успешно сохранены в {output_file}")
 
-db_server = os.getenv('DB_SERVER')
-db_database = os.getenv('DB_DATABASE')
-db_username = os.getenv('DB_USERNAME')
-db_password = os.getenv('DB_PASSWORD')
-db_driver = os.getenv('DB_DRIVER')
 
-def parse_xml(file_path):
+
+def phones_parse_xml(file_path):
     # Парсинг XML файла
     tree = ET.parse(file_path)
     root = tree.getroot()
@@ -34,20 +39,19 @@ def parse_xml(file_path):
                     data.append((vendor_name, model_name, memory_size, color_name, ram_sizes))
     return data
 
-def setup_database(connection_string):
-    # Подключение к базе данных
-    conn = pyodbc.connect(connection_string)
+def phones_setup_database(db_handler):
+    # Подключение к базе данных через наш handler
+    conn = sqlite3.connect(db_handler.db_path)
     cursor = conn.cursor()
     
-    # Проверка и создание таблицы, если она не существует
+    # Создаем таблицу avito_phones, если она не существует
     cursor.execute('''
-        IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='avito_phones' AND xtype='U')
-        CREATE TABLE avito_phones (
-            Vendor NVARCHAR(255),
-            Model NVARCHAR(255),
-            MemorySize NVARCHAR(255),
-            Color NVARCHAR(255),
-            RamSize NVARCHAR(MAX)
+        CREATE TABLE IF NOT EXISTS avito_phones (
+            Vendor TEXT,
+            Model TEXT,
+            MemorySize TEXT,
+            Color TEXT,
+            RamSize TEXT
         )
     ''')
     conn.commit()
@@ -58,7 +62,7 @@ def setup_database(connection_string):
     
     return conn, cursor
 
-def insert_data(cursor, data):
+def phones_insert_data(cursor, data):
     # Вставка данных в таблицу
     for vendor, model, memory, color, ram_sizes in data:
         ram_sizes_str = ', '.join(ram_sizes)
@@ -68,16 +72,93 @@ def insert_data(cursor, data):
         ''', (vendor, model, memory, color, ram_sizes_str))
     cursor.connection.commit()
 
-def main():
-    file_path = 'phones.xml'  # Путь к вашему XML файлу
-    connection_string = f'DRIVER={db_driver};SERVER={db_server};DATABASE={db_database};UID={db_username};PWD={db_password}'
+def phones_main():
+    file_name = 'phones.xml'
+    url = "https://autoload.avito.ru/format/phone_catalog.xml"
+
+    save_xml_to_file(url, file_name)
     
-    data = parse_xml(file_path)
-    conn, cursor = setup_database(connection_string)
-    insert_data(cursor, data)
+    # Создаем экземпляр DatabaseHandler
+    db_handler = DatabaseHandler()
+    
+    data = phones_parse_xml(file_name)
+    conn, cursor = phones_setup_database(db_handler)
+    phones_insert_data(cursor, data)
     
     cursor.close()
     conn.close()
+
+
+def tablets_parse_xml(file_path):
+    # Парсинг XML файла
+    tree = ET.parse(file_path)
+    root = tree.getroot()
+    
+    data = []
+    for brand in root.findall('Brand'):
+        brand_name = brand.get('name')
+        for model in brand.findall('Model'):
+            model_name = model.get('name')
+            for memory in model.findall('MemorySize'):
+                memory_size = memory.get('name')
+                for sim in memory.findall('SimSlot'):
+                    sim_slot = sim.get('name')
+                    for ram in sim.findall('RamSize'):
+                        ram_size = ram.get('name')
+                        for color in ram.findall('Color'):
+                            color_name = color.get('name')
+                            data.append((brand_name, model_name, memory_size, sim_slot, ram_size, color_name))
+    return data
+
+def tablets_setup_database(db_handler):
+    conn = sqlite3.connect(db_handler.db_path)
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS avito_tablets (
+            Brand TEXT,
+            Model TEXT,
+            MemorySize TEXT,
+            SimSlot TEXT,
+            RamSize TEXT,
+            Color TEXT
+        )
+    ''')
+    conn.commit()
+    
+    cursor.execute('DELETE FROM avito_tablets')
+    conn.commit()
+    
+    return conn, cursor
+
+def tablets_insert_data(cursor, data):
+    # Вставка данных в таблицу
+    for brand, model, memory, sim_slot, ram_size, color in data:
+        cursor.execute('''
+            INSERT INTO avito_tablets (Brand, Model, MemorySize, SimSlot, RamSize, Color)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (brand, model, memory, sim_slot, ram_size, color))
+    cursor.connection.commit()
+
+def tablets_main():
+    file_name = 'tablets.xml'
+    url = "https://autoload.avito.ru/format/tablets.xml"
+
+    save_xml_to_file(url, file_name)
+    
+    # Создаем экземпляр DatabaseHandler
+    db_handler = DatabaseHandler()
+    
+    data = tablets_parse_xml(file_name)
+    conn, cursor = tablets_setup_database(db_handler)
+    tablets_insert_data(cursor, data)
+    
+    cursor.close()
+    conn.close()
+
+def main():
+    phones_main()
+    tablets_main()
 
 if __name__ == '__main__':
     main()

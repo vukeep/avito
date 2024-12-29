@@ -55,7 +55,7 @@ def update_price_avito(data: list, account: dict):
     client = AvitoAPIClient(account[account_key]['client_id'], account[account_key]['client_secret'])
 
     for article, price, avito_id in updated_data:
-        client.default.update_price(avito_id, price)
+        client.services.update_price(avito_id, price)
 
 
 

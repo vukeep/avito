@@ -213,7 +213,7 @@ def smart_phone_function(item: dict) -> dict:
             ram = ''
         color = item.get('Цвет').lower()
         name = item.get('Название').lower()
-        article = item.get('Артикул').lower()
+        article = item.get('Артикул')
         price = item.get('Цена')
         model_not_ram = name.split('(')[0].strip()
         name_model = model_not_ram.replace(brand, '').replace(memory, '').replace(ram, '').replace(color, '').strip()

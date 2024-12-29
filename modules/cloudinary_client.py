@@ -2,6 +2,9 @@ import cloudinary.api as api_client
 import cloudinary
 import os
 from dotenv import load_dotenv
+from utils.logger import get_logger
+
+logger = get_logger("Cloudinary")
 
 # Загрузка переменных окружения
 load_dotenv()
@@ -24,7 +27,7 @@ class CloudinaryClient:
             photo_urls.sort()
             return photo_urls
         except Exception as e:
-            print(f"Ошибка при получении фото из папки {folder}: {e}")
+            logger.error(f"Ошибка при получении фото из папки {folder}: {e}")
             return []
         
     def url_to_string(self, folder):
