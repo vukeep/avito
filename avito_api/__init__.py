@@ -1,17 +1,18 @@
-from .auth.authentication import Authentication
-from .autoload.autoload_client import AutoloadClient
-from .item.item_client import ItemClient
-from .user.user_client import UserClient
-from .services_item.services_client import ServicesClient
-from .messenger.messenger_client import MessengerClient
-from .api_client import AvitoAPIClient
+"""
+Пакет Avito API - клиент для работы с API Avito
+Оптимизирован для быстрой интеграции и высокой производительности
+"""
 
-__all__ = [
-    'Authentication',
-    'AutoloadClient',
-    'ItemClient',
-    'UserClient',
-    'ServicesClient',
-    'MessengerClient',
-    'AvitoAPIClient'
-]
+from .api_client import AvitoApiClient
+from . import utils
+from . import user
+from . import services_item
+from . import messenger
+from . import item
+from . import auth
+
+# Экспортируем основной класс для удобного импорта
+__all__ = ['AvitoApiClient']
+
+# Версия пакета
+__version__ = '1.0.0'
