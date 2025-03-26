@@ -25,7 +25,7 @@ class MessengerClient:
         url = f"{API_BASE_URL}/messenger/v2/accounts/{user_id}/chats"
         params = {
             "item_ids": ','.join(map(str, item_ids)) if item_ids else None,
-            "unread_only": unread_only,
+            "unread_only": str(unread_only).lower(),  # Преобразуем в 'true' или 'false'
             "chat_types": chat_types,
             "limit": limit,
             "offset": offset
