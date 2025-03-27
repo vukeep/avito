@@ -177,3 +177,14 @@ class MessengerClient:
         }
         headers = self.auth.get_headers()
         return RequestHandler.send_request(url, method="GET", headers=headers, params=params)
+    
+    def get_subscriptions(self):
+        """
+        Получение списка подписок на webhook-уведомления.
+        
+        Returns:
+            dict: Список активных подписок на уведомления
+        """
+        url = f"{API_BASE_URL}/messenger/v1/subscriptions"
+        headers = self.auth.get_headers()
+        return RequestHandler.send_request(url, method="POST", headers=headers)
