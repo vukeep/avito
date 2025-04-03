@@ -7,7 +7,7 @@ setup(
     version="1.0.0",
     packages=find_packages(),
     install_requires=[
-        "requests>=2.25.0",  # Указываем минимальную версию для совместимости
+        "requests",  # Указываем минимальную версию для совместимости
     ],
     author="vukeep",
     author_email="vukeep@gmail.com",
