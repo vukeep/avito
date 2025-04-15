@@ -72,7 +72,7 @@ class MessengerClient:
         headers = self.auth.get_headers()
         return RequestHandler.send_request(url, method="GET", headers=headers, params=params)
 
-    def send_message(self, user_id, chat_id, text):
+    def send_message(self, user_id, chat_id, data):
         """
         Отправка текстового сообщения в чат.
         
@@ -80,15 +80,16 @@ class MessengerClient:
             user_id (int): ID пользователя
             chat_id (str): ID чата
             text (str): Текст сообщения
+            data = {
+                "message": {"text": text},
+                "type": "text"
+            }
             
         Returns:
             dict: Информация об отправленном сообщении
         """
         url = f"{API_BASE_URL}/messenger/v1/accounts/{user_id}/chats/{chat_id}/messages"
-        data = {
-            "message": {"text": text},
-            "type": "text"
-        }
+
         headers = self.auth.get_headers()
         return RequestHandler.send_request(url, method="POST", headers=headers, data=data)
 
