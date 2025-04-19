@@ -15,7 +15,7 @@
 ## Установка
 
 ```bash
-pip install avito-api-client
+pip install "git+https://github.com/vukeep/avito.git"
 ```
 
 ## Быстрый старт
